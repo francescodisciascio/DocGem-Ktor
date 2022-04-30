@@ -14,7 +14,7 @@ plugins {
 group = "it.docgem"
 version = "0.0.1"
 application {
-    mainClass.set("it.docgem.Application.kt")
+    mainClass.set("it.docgem.ApplicationKt")
 }
 
 repositories {

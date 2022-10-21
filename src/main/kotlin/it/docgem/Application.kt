@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import it.docgem.dao.DatabaseFactory
 import it.docgem.plugins.*
 import registerCountryTRoutes
+import registerSCapRoutes
 
 fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain.main(args)
@@ -14,5 +15,6 @@ fun Application.module() {
     DatabaseFactory.init()
     configureRouting()
     registerCountryTRoutes()
+    registerSCapRoutes()
     configureSerialization()
 }

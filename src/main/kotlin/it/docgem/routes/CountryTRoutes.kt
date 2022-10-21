@@ -4,11 +4,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.utils.io.*
 import it.docgem.dao.DAOFacade
 import it.docgem.dao.DAOFacadeImpl
-import it.docgem.models.Country
-import kotlinx.coroutines.runBlocking
 
 fun Application.registerCountryTRoutes() {
     routing {
@@ -27,7 +24,7 @@ fun Route.countryTRouting(){
         get{
             val shortNameParam = call.request.queryParameters["shortName"]
             val listCountries = dao.allCountriesFiltered(shortNameParam)
-            if(listCountries?.isEmpty() == true)
+            if(listCountries.isEmpty())
                 call.respondText("Nessun elemento trovato", status = HttpStatusCode.NotFound)
             else
                 call.respond(listCountries)

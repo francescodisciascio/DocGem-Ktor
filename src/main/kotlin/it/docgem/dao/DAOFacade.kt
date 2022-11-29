@@ -2,6 +2,8 @@ package it.docgem.dao
 
 import io.ktor.http.*
 import it.docgem.models.*
+import kotlinx.datetime.LocalDateTime
+
 
 interface DAOFacade {
     suspend fun allCountries(): List<Country>
@@ -18,4 +20,33 @@ interface DAOFacade {
     suspend fun addNewSCap(idCap: Int, regione: String, prov: String, comune: String, cap: Int, codice: String): SCap?
     suspend fun editSCap(idCap: Int, regione: String, prov: String, comune: String, cap: Int, codice: String): Boolean
     suspend fun deleteSCap(idCap: Int): Boolean
+
+    suspend fun allEvents(): List<Event>
+    suspend fun event(id: Int): Event?
+    suspend fun addNewEvent(description: String,
+                            doctorId: Int,
+                            endTime: LocalDateTime,
+                            healthServiceId: Int,
+                            isEventDone: Boolean,
+                            isRecurring: Boolean,
+                            patientId: Int,
+                            patientName: String,
+                            patientSurname: String,
+                            phoneNumber: String,
+                            startTime: LocalDateTime
+    ): Event?
+    suspend fun editEvent(id: Int,
+                          description: String,
+                          doctorId: Int,
+                          endTime: LocalDateTime,
+                          healthServiceId: Int,
+                          isEventDone: Boolean,
+                          isRecurring: Boolean,
+                          patientId: Int,
+                          patientName: String,
+                          patientSurname: String,
+                          phoneNumber: String,
+                          startTime: LocalDateTime
+    ): Boolean
+    suspend fun deleteEvent(id: Int): Boolean
 }

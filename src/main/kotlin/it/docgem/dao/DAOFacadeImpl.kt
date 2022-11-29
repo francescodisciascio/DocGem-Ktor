@@ -1,11 +1,18 @@
 package it.docgem.dao
 
 import io.ktor.http.*
-import it.docgem.models.Country_T
-import it.docgem.models.Country
-import it.docgem.models.SCap
-import it.docgem.models.S_Cap
+import it.docgem.models.*
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.joda.time.DateTime
+import java.time.Instant
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import kotlin.reflect.full.declaredMemberProperties
 
 class DAOFacadeImpl : DAOFacade {
@@ -106,6 +113,21 @@ class DAOFacadeImpl : DAOFacade {
         comune = parameters["comune"],
         cap = parameters["cap"]?.toInt(),
         codice = parameters["codice"]
+    )
+
+    private fun resultRowToEvent(row: ResultRow) = Event(
+        id = row[Events.id],
+        description = row[Events.description],
+        doctorId = row[Events.doctorId],
+        endTime = row[Events.endTime].toString().toInstant().toLocalDateTime(TimeZone.currentSystemDefault()),
+        healthServiceId = row[Events.healthServiceId],
+        isEventDone = (row[Events.isEventDone].toString()).toBoolean(),
+        isRecurring = (row[Events.isRecurring].toString()).toBoolean(),
+        patientId = row[Events.patientId],
+        patientName = row[Events.patientName],
+        patientSurname = row[Events.patientSurname],
+        phoneNumber = row[Events.phoneNumber],
+        startTime = row[Events.startTime].toString().toInstant().toLocalDateTime(TimeZone.currentSystemDefault())
     )
 
     override suspend fun allSCap(): List<SCap> = DatabaseFactory.dbQuery{
@@ -213,4 +235,82 @@ class DAOFacadeImpl : DAOFacade {
     override suspend fun deleteSCap(idCap: Int): Boolean = DatabaseFactory.dbQuery{
         S_Cap.deleteWhere { S_Cap.idcap eq idCap } > 0
     }
+
+
+    override suspend fun allEvents(): List<Event> = DatabaseFactory.dbQuery{
+        Events.selectAll().map(::resultRowToEvent)
+    }
+
+    override suspend fun event(eventId: Int): Event? = DatabaseFactory.dbQuery {
+        Events
+            .select { Events.id eq eventId }
+            .map(::resultRowToEvent)
+            .singleOrNull()
+    }
+
+
+
+    override suspend fun addNewEvent(
+        description: String,
+        doctorId: Int,
+        endTime: LocalDateTime,
+        healthServiceId: Int,
+        isEventDone: Boolean,
+        isRecurring: Boolean,
+        patientId: Int,
+        patientName: String,
+        patientSurname: String,
+        phoneNumber: String,
+        startTime: LocalDateTime
+    ): Event? = DatabaseFactory.dbQuery {
+        val insertStatement = Events.insert {
+            it[Events.description] = description
+            it[Events.doctorId] = doctorId
+            it[Events.endTime] = DateTime.parse(endTime.toString())
+            it[Events.healthServiceId] = healthServiceId
+            it[Events.isEventDone] = isEventDone
+            it[Events.isRecurring] = isRecurring
+            it[Events.patientId] = patientId
+            it[Events.patientName] = patientName
+            it[Events.patientSurname] = patientSurname
+            it[Events.phoneNumber] = phoneNumber
+            it[Events.startTime] = DateTime.parse(startTime.toString())
+        }
+        insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToEvent)
+    }
+
+    override suspend fun editEvent(
+        id: Int,
+        description: String,
+        doctorId: Int,
+        endTime: LocalDateTime,
+        healthServiceId: Int,
+        isEventDone: Boolean,
+        isRecurring: Boolean,
+        patientId: Int,
+        patientName: String,
+        patientSurname: String,
+        phoneNumber: String,
+        startTime: LocalDateTime
+    ): Boolean  = DatabaseFactory.dbQuery{
+        Events.update ({Events.id eq id}){
+            it[Events.description] = description
+            it[Events.doctorId] = doctorId
+            it[Events.endTime] = DateTime.parse(endTime.toString())
+            it[Events.healthServiceId] = healthServiceId
+            it[Events.isEventDone] = isEventDone
+            it[Events.isRecurring] = isRecurring
+            it[Events.patientId] = patientId
+            it[Events.patientName] = patientName
+            it[Events.patientSurname] = patientSurname
+            it[Events.phoneNumber] = phoneNumber
+            it[Events.startTime] = DateTime.parse(startTime.toString())
+        } > 0
+    }
+
+    override suspend fun deleteEvent(eventId: Int): Boolean = DatabaseFactory.dbQuery{
+        Events.deleteWhere { Events.id eq eventId } > 0
+    }
+
+
 }

@@ -4,6 +4,7 @@ package it.docgem
 import io.ktor.server.application.*
 import it.docgem.dao.DatabaseFactory
 import it.docgem.plugins.*
+import it.docgem.routes.registerEventRoutes
 import registerCountryTRoutes
 import registerSCapRoutes
 
@@ -16,5 +17,6 @@ fun Application.module() {
     configureRouting()
     registerCountryTRoutes()
     registerSCapRoutes()
+    registerEventRoutes()
     configureSerialization()
 }
